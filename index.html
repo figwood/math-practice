@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>可爱数学练习</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="panel" id="setup-screen">
+        <div class="mascot" aria-hidden="true">
+          <span class="ear left"></span>
+          <span class="ear right"></span>
+          <span class="face">^_^</span>
+        </div>
+        <h1>数学小乐园</h1>
+        <p class="subtitle">选一种题型，一次练习 20 道。</p>
+
+        <div class="category-list" role="radiogroup" aria-label="题目类别">
+          <label class="category-card">
+            <input type="radio" name="category" value="add" checked />
+            <span class="icon">+</span>
+            <span>
+              <strong>20以内的加法</strong>
+              <small>答案不超过 20</small>
+            </span>
+          </label>
+
+          <label class="category-card">
+            <input type="radio" name="category" value="subtract" />
+            <span class="icon">-</span>
+            <span>
+              <strong>20以内的减法</strong>
+              <small>答案不小于 0</small>
+            </span>
+          </label>
+        </div>
+
+        <button class="primary-button" id="start-button">开始练习</button>
+      </section>
+
+      <section class="panel hidden" id="quiz-screen" aria-live="polite">
+        <div class="top-row">
+          <button class="ghost-button" id="back-button" type="button">返回</button>
+          <div class="progress-text" id="progress-text">第 1 / 20 题</div>
+        </div>
+
+        <div class="progress-bar" aria-hidden="true">
+          <span id="progress-fill"></span>
+        </div>
+
+        <div class="question-card">
+          <div class="star star-one"></div>
+          <div class="star star-two"></div>
+          <p class="question-label">请回答</p>
+          <div class="question" id="question-text">1 + 1 = ?</div>
+        </div>
+
+        <form class="answer-area" id="answer-form">
+          <input
+            id="answer-input"
+            type="number"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="输入答案"
+            aria-label="答案"
+            required
+          />
+          <button class="primary-button" type="submit">提交</button>
+        </form>
+
+        <div class="feedback" id="feedback" aria-live="assertive"></div>
+      </section>
+
+      <section class="panel celebration hidden" id="finish-screen">
+        <div class="confetti" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="trophy" aria-hidden="true">★</div>
+        <h2>全部答对啦！</h2>
+        <p>20 道题都完成了，太棒了。</p>
+        <button class="primary-button" id="restart-button" type="button">再练一次</button>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
