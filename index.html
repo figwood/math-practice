@@ -49,6 +49,7 @@
       <section class="panel hidden" id="quiz-screen" aria-live="polite">
         <div class="top-row">
           <button class="ghost-button" id="back-button" type="button">返回</button>
+          <div class="timer-text" id="timer-text" aria-live="off">用时：0 秒</div>
           <div class="progress-text" id="progress-text">第 1 / 20 题</div>
         </div>
 
@@ -87,6 +88,7 @@
         <div class="trophy" aria-hidden="true">★</div>
         <h2>全部答对啦！</h2>
         <p>20 道题都完成了，太棒了。</p>
+        <p class="elapsed-time" id="elapsed-time">本次用时：0 秒</p>
         <button class="primary-button" id="restart-button" type="button">再练一次</button>
       </section>
     </main>

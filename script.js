@@ -13,6 +13,8 @@ const questionText = document.querySelector("#question-text");
 const progressText = document.querySelector("#progress-text");
 const progressFill = document.querySelector("#progress-fill");
 const feedback = document.querySelector("#feedback");
+const timerText = document.querySelector("#timer-text");
+const elapsedTimeText = document.querySelector("#elapsed-time");
 
 let questions = [];
 let currentIndex = 0;
@@ -22,6 +24,8 @@ let backgroundMusicGain = null;
 let backgroundStep = 0;
 let soundEnabled = false;
 let userMutedSound = false;
+let practiceStartTime = 0;
+let practiceTimer = 0;
 
 const BACKGROUND_PATTERN = [
   { bass: 130.81, chord: [261.63, 329.63, 392], melody: [659.25, null, 783.99, null] },
@@ -306,7 +310,11 @@ function makeAdditionQuestion() {
       const sum = a + b;
 
       if (sum > 10 && needsCarry) {
-        choices.push({ a, b });
+        const weight = a < 10 && b < 10 ? 5 : 1;
+
+        for (let index = 0; index < weight; index += 1) {
+          choices.push({ a, b });
+        }
       }
     }
   }
@@ -346,6 +354,33 @@ function generateQuestions(category) {
   });
 }
 
+function formatElapsedTime(milliseconds) {
+  const totalSeconds = Math.max(0, Math.round(milliseconds / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  if (minutes === 0) {
+    return `${seconds} 秒`;
+  }
+
+  return `${minutes} 分 ${seconds} 秒`;
+}
+
+function renderTimer() {
+  timerText.textContent = `用时：${formatElapsedTime(Date.now() - practiceStartTime)}`;
+}
+
+function startPracticeTimer() {
+  window.clearInterval(practiceTimer);
+  renderTimer();
+  practiceTimer = window.setInterval(renderTimer, 1000);
+}
+
+function stopPracticeTimer() {
+  window.clearInterval(practiceTimer);
+  practiceTimer = 0;
+}
+
 function showScreen(screen) {
   setupScreen.classList.add("hidden");
   quizScreen.classList.add("hidden");
@@ -371,12 +406,16 @@ function startPractice() {
   const category = document.querySelector('input[name="category"]:checked').value;
   questions = generateQuestions(category);
   currentIndex = 0;
+  practiceStartTime = Date.now();
+  startPracticeTimer();
   showScreen(quizScreen);
   renderQuestion();
 }
 
 function finishPractice() {
   progressFill.style.width = "100%";
+  stopPracticeTimer();
+  elapsedTimeText.textContent = `本次用时：${formatElapsedTime(Date.now() - practiceStartTime)}`;
   showScreen(finishScreen);
   playFinishMusic();
 }
@@ -414,11 +453,13 @@ function submitAnswer(event) {
 startButton.addEventListener("click", startPractice);
 soundButton.addEventListener("click", toggleSound);
 restartButton.addEventListener("click", () => {
+  stopPracticeTimer();
   showScreen(setupScreen);
   userMutedSound = false;
   startBackgroundMusic();
 });
 backButton.addEventListener("click", () => {
+  stopPracticeTimer();
   showScreen(setupScreen);
   userMutedSound = false;
   startBackgroundMusic();
