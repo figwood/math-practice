@@ -11,6 +11,7 @@ const answerForm = document.querySelector("#answer-form");
 const answerInput = document.querySelector("#answer-input");
 const questionLabel = document.querySelector(".question-label");
 const questionText = document.querySelector("#question-text");
+const formulaHint = document.querySelector("#formula-hint");
 const progressText = document.querySelector("#progress-text");
 const progressFill = document.querySelector("#progress-fill");
 const feedback = document.querySelector("#feedback");
@@ -360,6 +361,74 @@ function makeSubtractionQuestion() {
   };
 }
 
+function makeMixedOperationQuestion() {
+  const target = pickRandom([
+    "addend",
+    "addend",
+    "addend",
+    "subtrahend",
+    "subtrahend",
+    "subtrahend",
+    "minuend",
+    "minuend",
+    "minuend",
+    "sum",
+    "difference",
+  ]);
+
+  if (target === "addend" || target === "sum") {
+    const addendA = randomInt(1, 19);
+    const addendB = randomInt(1, 20 - addendA);
+    const sum = addendA + addendB;
+
+    if (target === "sum") {
+      return {
+        text: `${addendA} + ${addendB} = ?`,
+        answer: sum,
+        formula: "和 = 加数 + 加数",
+      };
+    }
+
+    return Math.random() < 0.5
+      ? {
+          text: `? + ${addendB} = ${sum}`,
+          answer: addendA,
+          formula: "加数 = 和 - 加数",
+        }
+      : {
+          text: `${addendA} + ? = ${sum}`,
+          answer: addendB,
+          formula: "加数 = 和 - 加数",
+        };
+  }
+
+  const minuend = randomInt(1, 20);
+  const subtrahend = randomInt(1, minuend);
+  const difference = minuend - subtrahend;
+
+  if (target === "minuend") {
+    return {
+      text: `? - ${subtrahend} = ${difference}`,
+      answer: minuend,
+      formula: "被减数 = 减数 + 差",
+    };
+  }
+
+  if (target === "subtrahend") {
+    return {
+      text: `${minuend} - ? = ${difference}`,
+      answer: subtrahend,
+      formula: "减数 = 被减数 - 差",
+    };
+  }
+
+  return {
+    text: `${minuend} - ${subtrahend} = ?`,
+    answer: difference,
+    formula: "差 = 被减数 - 减数",
+  };
+}
+
 function numberFromDigits(digits) {
   return Number(digits.join(""));
 }
@@ -432,6 +501,10 @@ function generateQuestions(category) {
     return generateCompareQuestions();
   }
 
+  if (category === "mixed") {
+    return Array.from({ length: TOTAL_QUESTIONS }, makeMixedOperationQuestion);
+  }
+
   return Array.from({ length: TOTAL_QUESTIONS }, () => {
     return category === "subtract" ? makeSubtractionQuestion() : makeAdditionQuestion();
   });
@@ -474,6 +547,8 @@ function showScreen(screen) {
 function renderQuestion() {
   const question = questions[currentIndex];
   questionText.textContent = question.text;
+  formulaHint.textContent = question.formula ?? "";
+  formulaHint.classList.toggle("hidden", !question.formula);
   progressText.textContent = `第 ${currentIndex + 1} / ${TOTAL_QUESTIONS} 题`;
   progressFill.style.width = `${(currentIndex / TOTAL_QUESTIONS) * 100}%`;
   feedback.textContent = "";
