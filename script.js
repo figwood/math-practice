@@ -68,6 +68,15 @@ function pickRandom(items) {
   return items[randomInt(0, items.length - 1)];
 }
 
+function shuffle(items) {
+  for (let index = items.length - 1; index > 0; index -= 1) {
+    const swapIndex = randomInt(0, index);
+    [items[index], items[swapIndex]] = [items[swapIndex], items[index]];
+  }
+
+  return items;
+}
+
 function getAudioContext() {
   if (!audioContext) {
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -407,11 +416,15 @@ function makeCompareQuestionFromNumbers(left, right) {
 }
 
 function generateCompareQuestions() {
-  const kinds = ["different-length", "first", "second", "third", "fourth", "equal"];
-
-  return Array.from({ length: TOTAL_QUESTIONS }, (_, index) => {
-    return makeCompareQuestion(kinds[index % kinds.length]);
+  const nonEqualKinds = ["different-length", "first", "second", "third", "fourth"];
+  const equalQuestionCount = Math.max(1, Math.round(TOTAL_QUESTIONS * 0.1));
+  const kinds = Array.from({ length: TOTAL_QUESTIONS }, (_, index) => {
+    return index < equalQuestionCount ? "equal" : nonEqualKinds[index % nonEqualKinds.length];
   });
+
+  shuffle(kinds);
+
+  return kinds.map((kind) => makeCompareQuestion(kind));
 }
 
 function generateQuestions(category) {
