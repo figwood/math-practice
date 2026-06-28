@@ -383,9 +383,9 @@ function makeMixedOperationQuestion() {
 
     if (target === "sum") {
       return {
-        text: `${addendA} + ${addendB} = ?`,
+        text: `? - ${addendB} = ${addendA}`,
         answer: sum,
-        formula: "和 = 加数 + 加数",
+        formula: "被减数 = 减数 + 差",
       };
     }
 
@@ -396,14 +396,14 @@ function makeMixedOperationQuestion() {
           formula: "加数 = 和 - 加数",
         }
       : {
-          text: `${addendA} + ? = ${sum}`,
+          text: `? + ${addendA} = ${sum}`,
           answer: addendB,
           formula: "加数 = 和 - 加数",
         };
   }
 
-  const minuend = randomInt(1, 20);
-  const subtrahend = randomInt(1, minuend);
+  const minuend = randomInt(2, 20);
+  const subtrahend = randomInt(1, minuend - 1);
   const difference = minuend - subtrahend;
 
   if (target === "minuend") {
@@ -416,22 +416,22 @@ function makeMixedOperationQuestion() {
 
   if (target === "subtrahend") {
     return {
-      text: `${minuend} - ? = ${difference}`,
+      text: `? + ${difference} = ${minuend}`,
       answer: subtrahend,
-      formula: "减数 = 被减数 - 差",
+      formula: "加数 = 和 - 加数",
     };
   }
 
   return {
-    text: `${minuend} - ${subtrahend} = ?`,
+    text: `? + ${subtrahend} = ${minuend}`,
     answer: difference,
-    formula: "差 = 被减数 - 减数",
+    formula: "加数 = 和 - 加数",
   };
 }
 
 function makeMultiplyDivideQuestion() {
-  const factorA = randomInt(1, 9);
-  const factorB = randomInt(1, 9);
+  const factorA = randomInt(2, 9);
+  const factorB = randomInt(2, 9);
   const product = factorA * factorB;
   const target = pickRandom([
     "factor",
@@ -441,19 +441,12 @@ function makeMultiplyDivideQuestion() {
     "factor",
     "dividend",
     "dividend",
+    "dividend",
+    "dividend",
+    "dividend",
     "divisor",
     "divisor",
-    "product",
-    "quotient",
   ]);
-
-  if (target === "product") {
-    return {
-      text: `${factorA} × ${factorB} = ?`,
-      answer: product,
-      formula: "积 = 乘数 × 乘数",
-    };
-  }
 
   if (target === "factor") {
     return Math.random() < 0.5
@@ -463,7 +456,7 @@ function makeMultiplyDivideQuestion() {
           formula: "乘数 = 积 ÷ 乘数",
         }
       : {
-          text: `${factorA} × ? = ${product}`,
+          text: `? × ${factorA} = ${product}`,
           answer: factorB,
           formula: "乘数 = 积 ÷ 乘数",
         };
@@ -479,23 +472,11 @@ function makeMultiplyDivideQuestion() {
 
   if (target === "divisor") {
     return {
-      text: `${product} ÷ ? = ${factorA}`,
+      text: `? × ${factorA} = ${product}`,
       answer: factorB,
       formula: "除数 = 被除数 ÷ 商",
     };
   }
-
-  return Math.random() < 0.5
-    ? {
-        text: `${product} ÷ ${factorB} = ?`,
-        answer: factorA,
-        formula: "商 = 被除数 ÷ 除数",
-      }
-    : {
-        text: `${product} ÷ ${factorA} = ?`,
-        answer: factorB,
-        formula: "商 = 被除数 ÷ 除数",
-      };
 }
 
 function numberFromDigits(digits) {
