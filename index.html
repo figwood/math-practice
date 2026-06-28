@@ -41,6 +41,15 @@
               <small>答案不小于 0</small>
             </span>
           </label>
+
+          <label class="category-card">
+            <input type="radio" name="category" value="compare" />
+            <span class="icon">&lt;&gt;</span>
+            <span>
+              <strong>10000以内比大小</strong>
+              <small>选择大于、小于或等于</small>
+            </span>
+          </label>
         </div>
 
         <button class="primary-button" id="start-button">开始练习</button>
@@ -76,6 +85,12 @@
           />
           <button class="primary-button" type="submit">提交</button>
         </form>
+
+        <div class="choice-area hidden" id="choice-area" aria-label="选择比较结果">
+          <button class="choice-button" type="button" data-answer=">">&gt;</button>
+          <button class="choice-button" type="button" data-answer="<">&lt;</button>
+          <button class="choice-button" type="button" data-answer="=">=</button>
+        </div>
 
         <div class="feedback" id="feedback" aria-live="assertive"></div>
       </section>

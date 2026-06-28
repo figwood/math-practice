@@ -9,12 +9,15 @@ const restartButton = document.querySelector("#restart-button");
 const soundButton = document.querySelector("#sound-button");
 const answerForm = document.querySelector("#answer-form");
 const answerInput = document.querySelector("#answer-input");
+const questionLabel = document.querySelector(".question-label");
 const questionText = document.querySelector("#question-text");
 const progressText = document.querySelector("#progress-text");
 const progressFill = document.querySelector("#progress-fill");
 const feedback = document.querySelector("#feedback");
 const timerText = document.querySelector("#timer-text");
 const elapsedTimeText = document.querySelector("#elapsed-time");
+const choiceArea = document.querySelector("#choice-area");
+const choiceButtons = document.querySelectorAll(".choice-button");
 
 let questions = [];
 let currentIndex = 0;
@@ -348,7 +351,74 @@ function makeSubtractionQuestion() {
   };
 }
 
+function numberFromDigits(digits) {
+  return Number(digits.join(""));
+}
+
+function makeCompareQuestion(kind) {
+  if (kind === "different-length") {
+    const shortLength = randomInt(1, 3);
+    const longLength = randomInt(shortLength + 1, 4);
+    const shortNumber = randomInt(10 ** (shortLength - 1), 10 ** shortLength - 1);
+    const longNumber = randomInt(10 ** (longLength - 1), 10 ** longLength - 1);
+    const [left, right] = Math.random() < 0.5 ? [shortNumber, longNumber] : [longNumber, shortNumber];
+
+    return makeCompareQuestionFromNumbers(left, right);
+  }
+
+  if (kind === "equal") {
+    const number = randomInt(1, 9999);
+    return makeCompareQuestionFromNumbers(number, number);
+  }
+
+  const differentDigitIndexByKind = {
+    first: 0,
+    second: 1,
+    third: 2,
+    fourth: 3,
+  };
+  const differentDigitIndex = differentDigitIndexByKind[kind];
+  const length = Math.max(2, differentDigitIndex + 1, randomInt(differentDigitIndex + 1, 4));
+  const leftDigits = Array.from({ length }, (_, index) => {
+    return index === 0 ? randomInt(1, 9) : randomInt(0, 9);
+  });
+  const rightDigits = [...leftDigits];
+  let nextDigit = leftDigits[differentDigitIndex];
+
+  while (nextDigit === leftDigits[differentDigitIndex]) {
+    nextDigit = differentDigitIndex === 0 ? randomInt(1, 9) : randomInt(0, 9);
+  }
+
+  rightDigits[differentDigitIndex] = nextDigit;
+
+  for (let index = differentDigitIndex + 1; index < length; index += 1) {
+    rightDigits[index] = randomInt(0, 9);
+  }
+
+  return makeCompareQuestionFromNumbers(numberFromDigits(leftDigits), numberFromDigits(rightDigits));
+}
+
+function makeCompareQuestionFromNumbers(left, right) {
+  return {
+    text: `${left} ○ ${right}`,
+    answer: left > right ? ">" : left < right ? "<" : "=",
+    type: "choice",
+  };
+}
+
+function generateCompareQuestions() {
+  const kinds = ["different-length", "first", "second", "third", "fourth", "equal"];
+
+  return Array.from({ length: TOTAL_QUESTIONS }, (_, index) => {
+    return makeCompareQuestion(kinds[index % kinds.length]);
+  });
+}
+
 function generateQuestions(category) {
+  if (category === "compare") {
+    return generateCompareQuestions();
+  }
+
   return Array.from({ length: TOTAL_QUESTIONS }, () => {
     return category === "subtract" ? makeSubtractionQuestion() : makeAdditionQuestion();
   });
@@ -395,6 +465,18 @@ function renderQuestion() {
   progressFill.style.width = `${(currentIndex / TOTAL_QUESTIONS) * 100}%`;
   feedback.textContent = "";
   feedback.className = "feedback";
+
+  if (question.type === "choice") {
+    questionLabel.textContent = "请选择";
+    answerForm.classList.add("hidden");
+    choiceArea.classList.remove("hidden");
+    choiceButtons[0].focus();
+    return;
+  }
+
+  questionLabel.textContent = "请回答";
+  choiceArea.classList.add("hidden");
+  answerForm.classList.remove("hidden");
   answerInput.value = "";
   answerInput.focus();
 }
@@ -420,17 +502,20 @@ function finishPractice() {
   playFinishMusic();
 }
 
-function submitAnswer(event) {
-  event.preventDefault();
-
-  const userAnswer = Number(answerInput.value);
+function checkAnswer(userAnswer) {
   const rightAnswer = questions[currentIndex].answer;
 
   if (userAnswer !== rightAnswer) {
     playWrongSound();
     feedback.textContent = "✗ 再想一想，重新答一次";
     feedback.className = "feedback wrong";
-    answerInput.select();
+
+    if (questions[currentIndex].type === "choice") {
+      choiceButtons[0].focus();
+    } else {
+      answerInput.select();
+    }
+
     return;
   }
 
@@ -450,6 +535,11 @@ function submitAnswer(event) {
   }, 650);
 }
 
+function submitAnswer(event) {
+  event.preventDefault();
+  checkAnswer(Number(answerInput.value));
+}
+
 startButton.addEventListener("click", startPractice);
 soundButton.addEventListener("click", toggleSound);
 restartButton.addEventListener("click", () => {
@@ -465,6 +555,11 @@ backButton.addEventListener("click", () => {
   startBackgroundMusic();
 });
 answerForm.addEventListener("submit", submitAnswer);
+choiceButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    checkAnswer(button.dataset.answer);
+  });
+});
 document.addEventListener("pointerdown", unlockBackgroundMusic, { passive: true });
 document.addEventListener("keydown", unlockBackgroundMusic);
 startBackgroundMusic();

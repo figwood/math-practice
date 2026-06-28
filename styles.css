@@ -70,7 +70,7 @@ body {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 h1,
@@ -272,8 +272,8 @@ input {
 .question-card {
   position: relative;
   margin: 0 auto 26px;
-  padding: 36px 20px;
-  max-width: 460px;
+  padding: 36px 28px;
+  max-width: 620px;
   border: 5px solid var(--ink);
   border-radius: 26px;
   background: #fff0a6;
@@ -286,9 +286,10 @@ input {
 }
 
 .question {
-  font-size: clamp(3rem, 12vw, 6rem);
+  font-size: clamp(2.6rem, 10vw, 6rem);
   font-weight: 900;
   line-height: 1;
+  overflow-wrap: anywhere;
 }
 
 .star {
@@ -327,6 +328,32 @@ input {
   text-align: center;
   font-size: 1.5rem;
   font-weight: 900;
+}
+
+.choice-area {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 auto;
+  max-width: 520px;
+}
+
+.choice-button {
+  min-height: 66px;
+  padding: 12px 10px;
+  border: 4px solid var(--ink);
+  border-radius: 20px;
+  background: #e8fbff;
+  color: var(--ink);
+  box-shadow: 0 6px 0 var(--ink);
+  cursor: pointer;
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.choice-button:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 var(--ink);
 }
 
 .feedback {
@@ -436,6 +463,10 @@ input {
 
   .answer-area input {
     width: 100%;
+  }
+
+  .choice-area {
+    grid-template-columns: 1fr;
   }
 
   .top-row {
