@@ -429,6 +429,75 @@ function makeMixedOperationQuestion() {
   };
 }
 
+function makeMultiplyDivideQuestion() {
+  const factorA = randomInt(1, 9);
+  const factorB = randomInt(1, 9);
+  const product = factorA * factorB;
+  const target = pickRandom([
+    "factor",
+    "factor",
+    "factor",
+    "factor",
+    "factor",
+    "dividend",
+    "dividend",
+    "divisor",
+    "divisor",
+    "product",
+    "quotient",
+  ]);
+
+  if (target === "product") {
+    return {
+      text: `${factorA} × ${factorB} = ?`,
+      answer: product,
+      formula: "积 = 乘数 × 乘数",
+    };
+  }
+
+  if (target === "factor") {
+    return Math.random() < 0.5
+      ? {
+          text: `? × ${factorB} = ${product}`,
+          answer: factorA,
+          formula: "乘数 = 积 ÷ 乘数",
+        }
+      : {
+          text: `${factorA} × ? = ${product}`,
+          answer: factorB,
+          formula: "乘数 = 积 ÷ 乘数",
+        };
+  }
+
+  if (target === "dividend") {
+    return {
+      text: `? ÷ ${factorB} = ${factorA}`,
+      answer: product,
+      formula: "被除数 = 除数 × 商",
+    };
+  }
+
+  if (target === "divisor") {
+    return {
+      text: `${product} ÷ ? = ${factorA}`,
+      answer: factorB,
+      formula: "除数 = 被除数 ÷ 商",
+    };
+  }
+
+  return Math.random() < 0.5
+    ? {
+        text: `${product} ÷ ${factorB} = ?`,
+        answer: factorA,
+        formula: "商 = 被除数 ÷ 除数",
+      }
+    : {
+        text: `${product} ÷ ${factorA} = ?`,
+        answer: factorB,
+        formula: "商 = 被除数 ÷ 除数",
+      };
+}
+
 function numberFromDigits(digits) {
   return Number(digits.join(""));
 }
@@ -503,6 +572,10 @@ function generateQuestions(category) {
 
   if (category === "mixed") {
     return Array.from({ length: TOTAL_QUESTIONS }, makeMixedOperationQuestion);
+  }
+
+  if (category === "multiply-divide") {
+    return Array.from({ length: TOTAL_QUESTIONS }, makeMultiplyDivideQuestion);
   }
 
   return Array.from({ length: TOTAL_QUESTIONS }, () => {
