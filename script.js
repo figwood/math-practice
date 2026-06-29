@@ -477,7 +477,7 @@ function makeMultiplyDivideQuestion() {
 
   if (target === "divisor") {
     return {
-      text: `? × ${factorA} = ${product}`,
+      text: `${product} ÷ ? = ${factorA}`,
       answer: factorB,
       formula: "除数 = 被除数 ÷ 商",
     };
