@@ -19,6 +19,11 @@ const timerText = document.querySelector("#timer-text");
 const elapsedTimeText = document.querySelector("#elapsed-time");
 const choiceArea = document.querySelector("#choice-area");
 const choiceButtons = document.querySelectorAll(".choice-button");
+const numberPad = document.querySelector("#number-pad");
+const numberPadButtons = document.querySelectorAll("#number-pad button");
+
+document.documentElement.classList.add("number-pad-enabled");
+answerInput.readOnly = true;
 
 let questions = [];
 let currentIndex = 0;
@@ -611,6 +616,7 @@ function renderQuestion() {
   if (question.type === "choice") {
     questionLabel.textContent = "请选择";
     answerForm.classList.add("hidden");
+    numberPad.classList.add("hidden");
     choiceArea.classList.remove("hidden");
     choiceButtons[0].focus();
     return;
@@ -619,8 +625,8 @@ function renderQuestion() {
   questionLabel.textContent = "请回答";
   choiceArea.classList.add("hidden");
   answerForm.classList.remove("hidden");
+  numberPad.classList.remove("hidden");
   answerInput.value = "";
-  answerInput.focus();
 }
 
 function startPractice() {
@@ -655,7 +661,7 @@ function checkAnswer(userAnswer) {
     if (questions[currentIndex].type === "choice") {
       choiceButtons[0].focus();
     } else {
-      answerInput.select();
+      answerInput.value = "";
     }
 
     return;
@@ -682,6 +688,58 @@ function submitAnswer(event) {
   checkAnswer(Number(answerInput.value));
 }
 
+function handleNumberPadInput(key) {
+  if (key === "submit") {
+    answerForm.requestSubmit();
+    return;
+  }
+
+  if (key === "backspace") {
+    answerInput.value = answerInput.value.slice(0, -1);
+    return;
+  }
+
+  answerInput.value += key;
+}
+
+function isQuizVisible() {
+  return !quizScreen.classList.contains("hidden");
+}
+
+function handleKeyboardInput(event) {
+  if (!isQuizVisible() || event.metaKey || event.ctrlKey || event.altKey) {
+    return;
+  }
+
+  const currentQuestion = questions[currentIndex];
+
+  if (currentQuestion?.type === "choice") {
+    if ([">", "<", "="].includes(event.key)) {
+      event.preventDefault();
+      checkAnswer(event.key);
+    }
+
+    return;
+  }
+
+  if (/^\d$/.test(event.key)) {
+    event.preventDefault();
+    handleNumberPadInput(event.key);
+    return;
+  }
+
+  if (event.key === "Backspace" || event.key === "Delete") {
+    event.preventDefault();
+    handleNumberPadInput("backspace");
+    return;
+  }
+
+  if (event.key === "Enter") {
+    event.preventDefault();
+    handleNumberPadInput("submit");
+  }
+}
+
 startButton.addEventListener("click", startPractice);
 soundButton.addEventListener("click", toggleSound);
 restartButton.addEventListener("click", () => {
@@ -697,6 +755,11 @@ backButton.addEventListener("click", () => {
   startBackgroundMusic();
 });
 answerForm.addEventListener("submit", submitAnswer);
+numberPadButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    handleNumberPadInput(button.dataset.key);
+  });
+});
 choiceButtons.forEach((button) => {
   button.addEventListener("click", () => {
     checkAnswer(button.dataset.answer);
@@ -704,4 +767,5 @@ choiceButtons.forEach((button) => {
 });
 document.addEventListener("pointerdown", unlockBackgroundMusic, { passive: true });
 document.addEventListener("keydown", unlockBackgroundMusic);
+document.addEventListener("keydown", handleKeyboardInput);
 startBackgroundMusic();
