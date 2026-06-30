@@ -3,8 +3,11 @@ const TOTAL_QUESTIONS = 20;
 const setupScreen = document.querySelector("#setup-screen");
 const quizScreen = document.querySelector("#quiz-screen");
 const finishScreen = document.querySelector("#finish-screen");
+const readingScreen = document.querySelector("#reading-screen");
 const startButton = document.querySelector("#start-button");
+const readingButton = document.querySelector("#reading-button");
 const backButton = document.querySelector("#back-button");
+const readingBackButton = document.querySelector("#reading-back-button");
 const restartButton = document.querySelector("#restart-button");
 const soundButton = document.querySelector("#sound-button");
 const answerForm = document.querySelector("#answer-form");
@@ -21,6 +24,12 @@ const choiceArea = document.querySelector("#choice-area");
 const choiceButtons = document.querySelectorAll(".choice-button");
 const numberPad = document.querySelector("#number-pad");
 const numberPadButtons = document.querySelectorAll("#number-pad button");
+const storyProgress = document.querySelector("#story-progress");
+const storyTitle = document.querySelector("#story-title");
+const storyContent = document.querySelector("#story-content");
+const previousStoryButton = document.querySelector("#previous-story-button");
+const nextStoryButton = document.querySelector("#next-story-button");
+const storiesSource = document.querySelector("#stories-source");
 
 document.documentElement.classList.add("number-pad-enabled");
 answerInput.readOnly = true;
@@ -35,6 +44,8 @@ let soundEnabled = false;
 let userMutedSound = false;
 let practiceStartTime = 0;
 let practiceTimer = 0;
+let stories = [];
+let currentStoryIndex = 0;
 
 const BACKGROUND_PATTERN = [
   { bass: 130.81, chord: [261.63, 329.63, 392], melody: [659.25, null, 783.99, null] },
@@ -600,7 +611,63 @@ function showScreen(screen) {
   setupScreen.classList.add("hidden");
   quizScreen.classList.add("hidden");
   finishScreen.classList.add("hidden");
+  readingScreen.classList.add("hidden");
   screen.classList.remove("hidden");
+}
+
+function escapeHtml(text) {
+  const element = document.createElement("span");
+  element.textContent = text;
+  return element.innerHTML;
+}
+
+function parseStories(markdown) {
+  return markdown
+    .split(/^##\s+/m)
+    .slice(1)
+    .map((section) => {
+      const lines = section.trim().split(/\r?\n/);
+      const title = lines.shift()?.trim() ?? "";
+      const content = lines.join("\n").trim();
+
+      return { title, content };
+    })
+    .filter((story) => story.title && story.content);
+}
+
+function renderStory() {
+  if (!stories.length) {
+    storyProgress.textContent = "暂无短文";
+    storyTitle.textContent = "没有找到短文";
+    storyContent.innerHTML = "<p>请确认 HTML 中的短文使用二级标题分隔每一篇。</p>";
+    previousStoryButton.disabled = true;
+    nextStoryButton.disabled = true;
+    return;
+  }
+
+  const story = stories[currentStoryIndex];
+  storyProgress.textContent = `第 ${currentStoryIndex + 1} / ${stories.length} 篇`;
+  storyTitle.textContent = story.title;
+  storyContent.innerHTML = story.content
+    .split(/\n{2,}/)
+    .map((paragraph) => `<p>${escapeHtml(paragraph.trim())}</p>`)
+    .join("");
+  previousStoryButton.disabled = currentStoryIndex === 0;
+  nextStoryButton.disabled = currentStoryIndex === stories.length - 1;
+}
+
+function loadStories() {
+  if (!stories.length) {
+    stories = parseStories(storiesSource?.textContent ?? "");
+  }
+}
+
+function showReadingPractice() {
+  stopPracticeTimer();
+  currentStoryIndex = 0;
+  showScreen(readingScreen);
+  loadStories();
+  renderStory();
 }
 
 function renderQuestion() {
@@ -741,6 +808,7 @@ function handleKeyboardInput(event) {
 }
 
 startButton.addEventListener("click", startPractice);
+readingButton.addEventListener("click", showReadingPractice);
 soundButton.addEventListener("click", toggleSound);
 restartButton.addEventListener("click", () => {
   stopPracticeTimer();
@@ -753,6 +821,21 @@ backButton.addEventListener("click", () => {
   showScreen(setupScreen);
   userMutedSound = false;
   startBackgroundMusic();
+});
+readingBackButton.addEventListener("click", () => {
+  showScreen(setupScreen);
+});
+previousStoryButton.addEventListener("click", () => {
+  if (currentStoryIndex > 0) {
+    currentStoryIndex -= 1;
+    renderStory();
+  }
+});
+nextStoryButton.addEventListener("click", () => {
+  if (currentStoryIndex < stories.length - 1) {
+    currentStoryIndex += 1;
+    renderStory();
+  }
 });
 answerForm.addEventListener("submit", submitAnswer);
 numberPadButtons.forEach((button) => {
