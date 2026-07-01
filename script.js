@@ -359,7 +359,7 @@ function makeAdditionQuestion() {
 function makeSubtractionQuestion() {
   const choices = [];
 
-  for (let a = 11; a <= 20; a += 1) {
+  for (let a = 11; a <= 19; a += 1) {
     for (let b = 1; b <= a; b += 1) {
       const needsBorrow = a % 10 < b % 10;
 

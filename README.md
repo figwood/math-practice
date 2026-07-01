@@ -11,7 +11,7 @@ A simple, cute static website for kids to practice math.
 - Shows a celebration animation after all questions are completed.
 - Includes two question types:
   - Addition within 20
-  - Subtraction within 20
+  - Subtraction within 19
 
 The generated questions avoid `0`. Addition questions prefer carrying and results greater than 10. Subtraction questions prefer borrowing.
 
