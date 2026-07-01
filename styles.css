@@ -202,6 +202,7 @@ h2 {
 .home-actions,
 .story-actions {
   display: flex;
+  align-items: center;
   justify-content: center;
   gap: 14px;
   flex-wrap: wrap;
@@ -252,6 +253,30 @@ input {
 
 .ghost-button:disabled {
   cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.story-jump-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 900;
+}
+
+.story-jump-form input {
+  width: 82px;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 4px solid var(--ink);
+  border-radius: 16px;
+  background: #fff9e8;
+  color: var(--ink);
+  text-align: center;
+  font-weight: 900;
+}
+
+.story-jump-form input:disabled {
   opacity: 0.48;
 }
 
@@ -668,6 +693,11 @@ input {
   .home-actions,
   .story-actions {
     display: grid;
+  }
+
+  .story-jump-form {
+    display: grid;
+    grid-template-columns: auto minmax(72px, 1fr) auto auto;
   }
 
   .story-card {

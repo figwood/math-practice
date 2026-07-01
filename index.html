@@ -162,6 +162,12 @@
 
         <div class="story-actions">
           <button class="ghost-button" id="previous-story-button" type="button">上一篇</button>
+          <form class="story-jump-form" id="story-jump-form">
+            <label for="story-jump-input">跳到</label>
+            <input id="story-jump-input" type="number" min="1" value="1" inputmode="numeric" aria-label="跳到第几篇故事">
+            <span>篇</span>
+            <button class="ghost-button" id="story-jump-button" type="submit">跳转</button>
+          </form>
           <button class="ghost-button" id="next-story-button" type="button">下一篇</button>
         </div>
       </section>

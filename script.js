@@ -29,6 +29,9 @@ const storyTitle = document.querySelector("#story-title");
 const storyContent = document.querySelector("#story-content");
 const previousStoryButton = document.querySelector("#previous-story-button");
 const nextStoryButton = document.querySelector("#next-story-button");
+const storyJumpForm = document.querySelector("#story-jump-form");
+const storyJumpInput = document.querySelector("#story-jump-input");
+const storyJumpButton = document.querySelector("#story-jump-button");
 const storiesSource = document.querySelector("#stories-source");
 
 document.documentElement.classList.add("number-pad-enabled");
@@ -642,11 +645,17 @@ function renderStory() {
     storyContent.innerHTML = "<p>请确认 HTML 中的短文使用二级标题分隔每一篇。</p>";
     previousStoryButton.disabled = true;
     nextStoryButton.disabled = true;
+    storyJumpInput.disabled = true;
+    storyJumpButton.disabled = true;
     return;
   }
 
   const story = stories[currentStoryIndex];
   storyProgress.textContent = `第 ${currentStoryIndex + 1} / ${stories.length} 篇`;
+  storyJumpInput.max = String(stories.length);
+  storyJumpInput.value = String(currentStoryIndex + 1);
+  storyJumpInput.disabled = false;
+  storyJumpButton.disabled = false;
   storyTitle.textContent = story.title;
   storyContent.innerHTML = story.content
     .split(/\n{2,}/)
@@ -654,6 +663,26 @@ function renderStory() {
     .join("");
   previousStoryButton.disabled = currentStoryIndex === 0;
   nextStoryButton.disabled = currentStoryIndex === stories.length - 1;
+}
+
+function jumpToStory(event) {
+  event.preventDefault();
+
+  if (!stories.length) {
+    return;
+  }
+
+  const requestedStory = Number(storyJumpInput.value);
+
+  if (!Number.isInteger(requestedStory)) {
+    storyJumpInput.value = String(currentStoryIndex + 1);
+    storyJumpInput.focus();
+    return;
+  }
+
+  const nextStoryIndex = Math.min(Math.max(requestedStory, 1), stories.length) - 1;
+  currentStoryIndex = nextStoryIndex;
+  renderStory();
 }
 
 function loadStories() {
@@ -837,6 +866,7 @@ nextStoryButton.addEventListener("click", () => {
     renderStory();
   }
 });
+storyJumpForm.addEventListener("submit", jumpToStory);
 answerForm.addEventListener("submit", submitAnswer);
 numberPadButtons.forEach((button) => {
   button.addEventListener("click", () => {
