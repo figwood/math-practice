@@ -72,6 +72,7 @@
 
         <div class="home-actions">
           <button class="primary-button" id="start-button">开始练习</button>
+          <button class="secondary-button" id="addition-table-button" type="button">加法口诀</button>
           <button class="secondary-button" id="reading-button" type="button">阅读训练</button>
         </div>
       </section>
@@ -171,7 +172,72 @@
           <button class="ghost-button" id="next-story-button" type="button">下一篇</button>
         </div>
       </section>
+
+      <section class="panel hidden" id="addition-table-screen">
+        <div class="top-row">
+          <button class="ghost-button" id="addition-table-back-button" type="button">返回</button>
+          <div class="progress-text">45 句口诀</div>
+        </div>
+
+        <article class="addition-table-card" aria-live="polite">
+          <p class="question-label">加法口诀</p>
+          <h2>加法阶梯表</h2>
+          <div class="memory-tips" aria-label="记忆提示">
+            <span>每一行先看第一个数</span>
+            <span>从凑十开始，像乘法口诀一样往右背</span>
+          </div>
+          <div class="addition-table" id="addition-table"></div>
+        </article>
+      </section>
     </main>
+
+    <script type="text/plain" id="addition-source">
+1+9=10
+2+8=10
+2+9=11
+3+7=10
+3+8=11
+3+9=12
+4+6=10
+4+7=11
+4+8=12
+4+9=13
+5+5=10
+5+6=11
+5+7=12
+5+8=13
+5+9=14
+6+4=10
+6+5=11
+6+6=12
+6+7=13
+6+8=14
+6+9=15
+7+3=10
+7+4=11
+7+5=12
+7+6=13
+7+7=14
+7+8=15
+7+9=16
+8+2=10
+8+3=11
+8+4=12
+8+5=13
+8+6=14
+8+7=15
+8+8=16
+8+9=17
+9+1=10
+9+2=11
+9+3=12
+9+4=13
+9+5=14
+9+6=15
+9+7=16
+9+8=17
+9+9=18
+    </script>
 
     <script type="text/plain" id="stories-source">
 # 29篇小童话

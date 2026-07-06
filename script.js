@@ -4,10 +4,13 @@ const setupScreen = document.querySelector("#setup-screen");
 const quizScreen = document.querySelector("#quiz-screen");
 const finishScreen = document.querySelector("#finish-screen");
 const readingScreen = document.querySelector("#reading-screen");
+const additionTableScreen = document.querySelector("#addition-table-screen");
 const startButton = document.querySelector("#start-button");
 const readingButton = document.querySelector("#reading-button");
+const additionTableButton = document.querySelector("#addition-table-button");
 const backButton = document.querySelector("#back-button");
 const readingBackButton = document.querySelector("#reading-back-button");
+const additionTableBackButton = document.querySelector("#addition-table-back-button");
 const restartButton = document.querySelector("#restart-button");
 const soundButton = document.querySelector("#sound-button");
 const answerForm = document.querySelector("#answer-form");
@@ -33,6 +36,8 @@ const storyJumpForm = document.querySelector("#story-jump-form");
 const storyJumpInput = document.querySelector("#story-jump-input");
 const storyJumpButton = document.querySelector("#story-jump-button");
 const storiesSource = document.querySelector("#stories-source");
+const additionSource = document.querySelector("#addition-source");
+const additionTable = document.querySelector("#addition-table");
 
 document.documentElement.classList.add("number-pad-enabled");
 answerInput.readOnly = true;
@@ -49,6 +54,7 @@ let practiceStartTime = 0;
 let practiceTimer = 0;
 let stories = [];
 let currentStoryIndex = 0;
+let additionFacts = [];
 
 const BACKGROUND_PATTERN = [
   { bass: 130.81, chord: [261.63, 329.63, 392], melody: [659.25, null, 783.99, null] },
@@ -615,6 +621,7 @@ function showScreen(screen) {
   quizScreen.classList.add("hidden");
   finishScreen.classList.add("hidden");
   readingScreen.classList.add("hidden");
+  additionTableScreen.classList.add("hidden");
   screen.classList.remove("hidden");
 }
 
@@ -691,12 +698,78 @@ function loadStories() {
   }
 }
 
+function parseAdditionFacts(text) {
+  return text
+    .trim()
+    .split(/\r?\n/)
+    .map((line) => {
+      const match = line.trim().match(/^(\d+)\+(\d+)=(\d+)$/);
+
+      if (!match) {
+        return null;
+      }
+
+      const [, left, right, sum] = match;
+
+      return {
+        left: Number(left),
+        right: Number(right),
+        sum: Number(sum),
+        text: `${left} + ${right} = ${sum}`,
+      };
+    })
+    .filter(Boolean);
+}
+
+function renderAdditionTable() {
+  if (!additionFacts.length) {
+    additionFacts = parseAdditionFacts(additionSource?.textContent ?? "");
+  }
+
+  const rows = new Map();
+
+  additionFacts.forEach((fact) => {
+    if (!rows.has(fact.left)) {
+      rows.set(fact.left, []);
+    }
+
+    rows.get(fact.left).push(fact);
+  });
+
+  additionTable.innerHTML = Array.from(rows.entries())
+    .sort(([leftA], [leftB]) => leftA - leftB)
+    .map(([left, facts]) => {
+      const factItems = facts
+        .sort((factA, factB) => factA.right - factB.right)
+        .map((fact) => {
+          const className = fact.sum === 10 ? "addition-fact make-ten" : "addition-fact";
+          const formula = `${fact.left} + ${fact.right} <span class="equals">= ${fact.sum}</span>`;
+          return `<span class="${className}">${formula}</span>`;
+        })
+        .join("");
+
+      return `
+        <section class="addition-row" aria-label="${left} 的加法口诀">
+          <div class="addition-row-label">${left}</div>
+          <div class="addition-facts">${factItems}</div>
+        </section>
+      `;
+    })
+    .join("");
+}
+
 function showReadingPractice() {
   stopPracticeTimer();
   currentStoryIndex = 0;
   showScreen(readingScreen);
   loadStories();
   renderStory();
+}
+
+function showAdditionTable() {
+  stopPracticeTimer();
+  showScreen(additionTableScreen);
+  renderAdditionTable();
 }
 
 function renderQuestion() {
@@ -838,6 +911,7 @@ function handleKeyboardInput(event) {
 
 startButton.addEventListener("click", startPractice);
 readingButton.addEventListener("click", showReadingPractice);
+additionTableButton.addEventListener("click", showAdditionTable);
 soundButton.addEventListener("click", toggleSound);
 restartButton.addEventListener("click", () => {
   stopPracticeTimer();
@@ -852,6 +926,9 @@ backButton.addEventListener("click", () => {
   startBackgroundMusic();
 });
 readingBackButton.addEventListener("click", () => {
+  showScreen(setupScreen);
+});
+additionTableBackButton.addEventListener("click", () => {
   showScreen(setupScreen);
 });
 previousStoryButton.addEventListener("click", () => {
