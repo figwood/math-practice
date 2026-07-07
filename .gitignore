@@ -1,2 +1,4 @@
 .tmp/
 story.md
+local-deploy.sh
+images

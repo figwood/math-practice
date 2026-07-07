@@ -575,7 +575,7 @@ input {
 
 .addition-facts {
   display: grid;
-  grid-template-columns: repeat(9, minmax(0, 1fr));
+  grid-template-columns: repeat(8, minmax(0, 1fr));
   gap: 8px;
   justify-items: stretch;
 }
@@ -592,10 +592,6 @@ input {
   font-weight: 900;
   line-height: 1;
   white-space: nowrap;
-}
-
-.addition-fact.make-ten {
-  background: #dff8ff;
 }
 
 .addition-fact .equals {

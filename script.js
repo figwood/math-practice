@@ -248,12 +248,27 @@ function playBackgroundStep() {
   backgroundStep += 1;
 }
 
+function isAdditionTableVisible() {
+  return !additionTableScreen.classList.contains("hidden");
+}
+
+function stopBackgroundMusic() {
+  window.clearInterval(backgroundMusicTimer);
+  backgroundMusicTimer = 0;
+
+  if (backgroundMusicGain) {
+    backgroundMusicGain.disconnect();
+    backgroundMusicGain = null;
+  }
+}
+
 function startBackgroundMusic() {
-  if (userMutedSound) {
+  if (userMutedSound || isAdditionTableVisible()) {
     return;
   }
 
   soundEnabled = true;
+  soundButton.classList.remove("hidden");
   soundButton.setAttribute("aria-pressed", "true");
   soundButton.setAttribute("aria-label", "关闭背景音乐");
   const context = getAudioContext();
@@ -271,13 +286,16 @@ function startBackgroundMusic() {
   playBackgroundStep();
 }
 
-function stopBackgroundMusic() {
-  window.clearInterval(backgroundMusicTimer);
-  backgroundMusicTimer = 0;
+function pauseBackgroundMusicForAdditionTable() {
+  stopBackgroundMusic();
+  soundButton.classList.add("hidden");
+}
 
-  if (backgroundMusicGain) {
-    backgroundMusicGain.disconnect();
-    backgroundMusicGain = null;
+function resumeBackgroundMusicOutsideAdditionTable() {
+  soundButton.classList.remove("hidden");
+
+  if (soundEnabled && !userMutedSound) {
+    startBackgroundMusic();
   }
 }
 
@@ -703,7 +721,7 @@ function parseAdditionFacts(text) {
     .trim()
     .split(/\r?\n/)
     .map((line) => {
-      const match = line.trim().match(/^(\d+)\+(\d+)=(\d+)$/);
+      const match = line.trim().match(/^(\d+)\+(\d+)(?:=(\d+))?$/);
 
       if (!match) {
         return null;
@@ -714,8 +732,7 @@ function parseAdditionFacts(text) {
       return {
         left: Number(left),
         right: Number(right),
-        sum: Number(sum),
-        text: `${left} + ${right} = ${sum}`,
+        sum: Number(sum ?? Number(left) + Number(right)),
       };
     })
     .filter(Boolean);
@@ -742,9 +759,8 @@ function renderAdditionTable() {
       const factItems = facts
         .sort((factA, factB) => factA.right - factB.right)
         .map((fact) => {
-          const className = fact.sum === 10 ? "addition-fact make-ten" : "addition-fact";
           const formula = `${fact.left} + ${fact.right} <span class="equals">= ${fact.sum}</span>`;
-          return `<span class="${className}">${formula}</span>`;
+          return `<span class="addition-fact">${formula}</span>`;
         })
         .join("");
 
@@ -762,6 +778,7 @@ function showReadingPractice() {
   stopPracticeTimer();
   currentStoryIndex = 0;
   showScreen(readingScreen);
+  resumeBackgroundMusicOutsideAdditionTable();
   loadStories();
   renderStory();
 }
@@ -769,6 +786,7 @@ function showReadingPractice() {
 function showAdditionTable() {
   stopPracticeTimer();
   showScreen(additionTableScreen);
+  pauseBackgroundMusicForAdditionTable();
   renderAdditionTable();
 }
 
@@ -801,13 +819,13 @@ function renderQuestion() {
 function startPractice() {
   userMutedSound = false;
   getAudioContext();
-  startBackgroundMusic();
   const category = document.querySelector('input[name="category"]:checked').value;
   questions = generateQuestions(category);
   currentIndex = 0;
   practiceStartTime = Date.now();
   startPracticeTimer();
   showScreen(quizScreen);
+  resumeBackgroundMusicOutsideAdditionTable();
   renderQuestion();
 }
 
@@ -917,19 +935,21 @@ restartButton.addEventListener("click", () => {
   stopPracticeTimer();
   showScreen(setupScreen);
   userMutedSound = false;
-  startBackgroundMusic();
+  resumeBackgroundMusicOutsideAdditionTable();
 });
 backButton.addEventListener("click", () => {
   stopPracticeTimer();
   showScreen(setupScreen);
   userMutedSound = false;
-  startBackgroundMusic();
+  resumeBackgroundMusicOutsideAdditionTable();
 });
 readingBackButton.addEventListener("click", () => {
   showScreen(setupScreen);
+  resumeBackgroundMusicOutsideAdditionTable();
 });
 additionTableBackButton.addEventListener("click", () => {
   showScreen(setupScreen);
+  resumeBackgroundMusicOutsideAdditionTable();
 });
 previousStoryButton.addEventListener("click", () => {
   if (currentStoryIndex > 0) {
