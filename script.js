@@ -404,8 +404,7 @@ function makeSubtractionQuestion() {
   };
 }
 
-function makeMixedOperationQuestion() {
-  const target = pickRandom([
+function makeMixedOperationQuestion(target = pickRandom([
     "addend",
     "addend",
     "addend",
@@ -417,7 +416,7 @@ function makeMixedOperationQuestion() {
     "minuend",
     "sum",
     "difference",
-  ]);
+  ])) {
 
   if (target === "addend" || target === "sum") {
     const addendA = randomInt(1, 19);
@@ -459,9 +458,9 @@ function makeMixedOperationQuestion() {
 
   if (target === "subtrahend") {
     return {
-      text: `? + ${difference} = ${minuend}`,
+      text: `${minuend} - ? = ${difference}`,
       answer: subtrahend,
-      formula: "加数 = 和 - 加数",
+      formula: "减数 = 被减数 - 差",
     };
   }
 
@@ -595,7 +594,27 @@ function generateQuestions(category) {
   }
 
   if (category === "mixed") {
-    return Array.from({ length: TOTAL_QUESTIONS }, makeMixedOperationQuestion);
+    const requiredTargets = ["addend", "sum", "subtrahend", "minuend", "difference"];
+    const weightedTargets = [
+      "addend",
+      "addend",
+      "addend",
+      "subtrahend",
+      "subtrahend",
+      "subtrahend",
+      "minuend",
+      "minuend",
+      "minuend",
+      "sum",
+      "difference",
+    ];
+    const targets = [...requiredTargets];
+
+    while (targets.length < TOTAL_QUESTIONS) {
+      targets.push(pickRandom(weightedTargets));
+    }
+
+    return shuffle(targets).map((target) => makeMixedOperationQuestion(target));
   }
 
   if (category === "multiply-divide") {
