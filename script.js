@@ -695,7 +695,7 @@ function renderStory() {
   }
 
   const story = stories[currentStoryIndex];
-  storyProgress.textContent = `第 ${currentStoryIndex + 1} / ${stories.length} 篇`;
+  storyProgress.textContent = `第 ${currentStoryIndex + 1} / ${stories.length} 章`;
   storyJumpInput.max = String(stories.length);
   storyJumpInput.value = String(currentStoryIndex + 1);
   storyJumpInput.disabled = false;
